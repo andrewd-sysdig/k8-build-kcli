@@ -1,0 +1,11 @@
+parameters:
+ image: ubuntu2004
+
+ubuntu2004-vm:
+ image: {{ image }}
+ numcpus: 2
+ memory: 4096
+ disks:
+  - size: 100
+ nets:
+  - name: br0
