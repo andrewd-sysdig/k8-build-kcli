@@ -68,6 +68,8 @@ network:
 EOF
 ```
 
+Now apply it `netplan apply`
+
 ## Install Docker
 > **_NOTE:_**  If you don't want to run containers on the host machine then you can skip this Install docker section.
 
