@@ -70,6 +70,22 @@ EOF
 
 Now apply it `netplan apply`
 
+### [Optional] Install NFS Server to use as nfs-csi driver for Kubernetes PV
+
+```
+sudo apt install nfs-kernel-server
+sudo mkdir -p /mnt/nfs_share
+sudo chown -R nobody:nogroup /mnt/nfs_share/
+sudo chmod 777 /mnt/nfs_share/
+sudo nano /etc/exports
+```
+Add: `/mnt/nfs_share 192.168.0.1/23(rw,sync,no_subtree_check)`
+
+```
+sudo exportfs -a
+sudo systemctl restart nfs-kernel-server
+```
+
 ## Install Docker
 > **_NOTE:_**  If you don't want to run containers on the host machine then you can skip this Install docker section.
 
@@ -80,7 +96,7 @@ https://serverfault.com/questions/963759/docker-breaks-libvirt-bridge-network
 ```
 sudo iptables -N DOCKER-USER 2>/dev/null || true
 sudo iptables -C DOCKER-USER -i br0 -o br0 -j ACCEPT >/dev/null 2>&1 || 
-    sudo iptables -I DOCKER-USER -i br0 -o br0 -j ACCEPT
+sudo iptables -I DOCKER-USER -i br0 -o br0 -j ACCEPT
 sudo apt install iptables-persistent # Answer yes to saving iptables rules to /etc/iptables/rules.v4
 ```
 
@@ -226,14 +242,40 @@ This plan creates a 2 node cluster, to add more just edit the cluster.yaml
 Wait a few mins until its ready and there will be a file k8_join.sh in the vmuser home directory which you need to run on the worker(s)
 
 ```
-scp 192.168.1.10:~/k8_join.sh 192.168.1.11:/tmp/k8_join.sh
-ssh 192.168.1.11 sudo /tmp/k8_join.sh
+export CONTROLLER_IP=192.168.1.30
+export WORKER_IP=192.168.1.31
+scp $CONTROLLER_IP:~/k8_join.sh $WORKER_IP:/tmp/k8_join.sh
+ssh $WORKER_IP sudo /tmp/k8_join.sh
+
+export WORKER_IP=192.168.1.32
+scp $CONTROLLER_IP:~/k8_join.sh $WORKER_IP:/tmp/k8_join.sh
+ssh $WORKER_IP sudo /tmp/k8_join.sh
+
+export WORKER_IP=192.168.1.33
+scp $CONTROLLER_IP:~/k8_join.sh $WORKER_IP:/tmp/k8_join.sh
+ssh $WORKER_IP sudo /tmp/k8_join.sh
 ```
 
 ## Grab the KUBECONFIG for remote access from your local machine
 
-`scp 192.168.1.10:~/.kube/config lab2-kubeconfig.yaml`
+`scp $CONTROLLER_IP:~/.kube/config lab1-kubeconfig.yaml`
 
+## Install MetalLB
+This providers LoadBalancer Service for 
+
+```
+helm install metallb metallb/metallb --namespace metallb-system --create-namespace
+k -n metallb-system get pod -w
+k apply -f metal-lb-cr.yaml
+```
+
+## Install NFS CSI Driver
+
+```
+helm install csi-driver-nfs csi-driver-nfs/csi-driver-nfs --namespace csi-driver-nfs --version v4.1.0 --create-namespace
+k -n csi-driver-nfs get pod -w
+k apply -f nfs-csi-sc.yaml
+```
 
 ## TODO: Windows interactive ISO install
 https://www.funtoo.org/Windows_10_Virtualization_with_KVM
