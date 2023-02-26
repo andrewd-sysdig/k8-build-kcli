@@ -1,12 +1,12 @@
 parameters:
- lab_prefix: lab3
- controller_ip: 192.168.1.30
- worker1_ip: 192.168.1.31
- worker2_ip: 192.168.1.32
- worker3_ip: 192.168.1.33
- netmask: 255.255.253.0
- gateway: 192.168.0.1
- dns: 192.168.0.1
+ lab_prefix: lab1
+ controller_ip: 192.168.1.100
+ worker1_ip: 192.168.1.101
+ worker2_ip: 192.168.1.102
+ worker3_ip: 192.168.1.103
+ netmask: 255.255.255.0
+ gateway: 192.168.1.1
+ dns: 192.168.1.1
  image: ubuntu2004
  k8s_version: 1.24.9-00 # Get valid release from here https://kubernetes.io/releases/
  vmuser: andrew
@@ -31,13 +31,13 @@ parameters:
     owner: {{ vmuser }}:{{ vmuser }}
     mode: 755
  cmds:
-  - /home/{{ vmuser }}/k8s-build-scripts/00-build_k8s_cluster.sh MASTER {{ k8s_version }} > /home/{{ vmuser }}/k8s_install.log
+  - /home/{{ vmuser }}/k8s-build-scripts/00-build_k8s_cluster.sh MASTER {{ k8s_version }} > /home/{{ vmuser }}/install.log
 
 {{ lab_prefix }}-worker1:
  image: ubuntu2004
  vmuser: {{ vmuser }}
  numcpus: 8
- memory: 28000
+ memory: 16000
  disks:
   - size: 100
  nets:
@@ -53,13 +53,13 @@ parameters:
     owner: {{ vmuser }}:{{ vmuser }}
     mode: 755
  cmds:
-  - /home/{{ vmuser }}/k8s-build-scripts/00-build_k8s_cluster.sh WORKER {{ k8s_version }} > /home/{{ vmuser }}/k8s_install.log
+  - /home/{{ vmuser }}/k8s-build-scripts/00-build_k8s_cluster.sh WORKER {{ k8s_version }} > /home/{{ vmuser }}/install.log
 
 {{ lab_prefix }}-worker2:
  image: ubuntu2004
  vmuser: {{ vmuser }}
  numcpus: 8
- memory: 28000
+ memory: 16000
  disks:
   - size: 100
  nets:
@@ -75,13 +75,13 @@ parameters:
     owner: {{ vmuser }}:{{ vmuser }}
     mode: 755
  cmds:
-  - /home/{{ vmuser }}/k8s-build-scripts/00-build_k8s_cluster.sh WORKER {{ k8s_version }} > /home/{{ vmuser }}/k8s_install.log
+  - /home/{{ vmuser }}/k8s-build-scripts/00-build_k8s_cluster.sh WORKER {{ k8s_version }} > /home/{{ vmuser }}/install.log
 
 {{ lab_prefix }}-worker3:
  image: ubuntu2004
  vmuser: {{ vmuser }}
  numcpus: 8
- memory: 28000
+ memory: 16000
  disks:
   - size: 100
  nets:
@@ -97,6 +97,6 @@ parameters:
     owner: {{ vmuser }}:{{ vmuser }}
     mode: 755
  cmds:
-  - /home/{{ vmuser }}/k8s-build-scripts/00-build_k8s_cluster.sh WORKER {{ k8s_version }} > /home/{{ vmuser }}/k8s_install.log
+  - /home/{{ vmuser }}/k8s-build-scripts/00-build_k8s_cluster.sh WORKER {{ k8s_version }} > /home/{{ vmuser }}/install.log
 
 

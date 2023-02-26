@@ -242,8 +242,8 @@ This plan creates a 2 node cluster, to add more just edit the cluster.yaml
 Wait a few mins until its ready and there will be a file k8_join.sh in the vmuser home directory which you need to run on the worker(s)
 
 ```
-export CONTROLLER_IP=192.168.1.30
-export WORKER_IP=192.168.1.31
+export CONTROLLER_IP=192.168.1.110
+export WORKER_IP=192.168.1.111
 scp $CONTROLLER_IP:~/k8_join.sh $WORKER_IP:/tmp/k8_join.sh
 ssh $WORKER_IP sudo /tmp/k8_join.sh
 
@@ -258,7 +258,7 @@ ssh $WORKER_IP sudo /tmp/k8_join.sh
 
 ## Grab the KUBECONFIG for remote access from your local machine
 
-`scp $CONTROLLER_IP:~/.kube/config lab1-kubeconfig.yaml`
+`scp $CONTROLLER_IP:~/.kube/config lab2-kubeconfig.yaml`
 
 ## Install MetalLB
 This providers LoadBalancer Service for 
@@ -277,6 +277,10 @@ k -n csi-driver-nfs get pod -w
 k apply -f nfs-csi-sc.yaml
 ```
 
-## TODO: Windows interactive ISO install
+## TODO 
+
+### Create new K8s user
+
+### Windows interactive ISO install
 https://www.funtoo.org/Windows_10_Virtualization_with_KVM
 https://github.com/AlekseyChudov/windows-kvm-imaging-tools

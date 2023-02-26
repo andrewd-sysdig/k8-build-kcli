@@ -2,7 +2,7 @@
 
 VMUSER=`grep 1000 /etc/passwd | cut -d ":" -f1` # Get the vmuser which should have id 1000
 
-POD_CIDR=10.0.0.0/16
+POD_CIDR=10.244.0.0/16
 NODENAME=`hostname`
 MASTER_NODE_IP_ADDR=`hostname -I |awk {'print $1'}`
 

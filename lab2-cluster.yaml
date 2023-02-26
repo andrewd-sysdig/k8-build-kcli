@@ -1,12 +1,12 @@
 parameters:
  lab_prefix: lab2
- controller_ip: 192.168.1.20
- worker1_ip: 192.168.1.21
- netmask: 255.255.253.0
- gateway: 192.168.0.1
- dns: 192.168.0.1
+ controller_ip: 192.168.1.110
+ worker1_ip: 192.168.1.111
+ netmask: 255.255.255.0
+ gateway: 192.168.1.1
+ dns: 192.168.1.1
  image: ubuntu2004
- k8s_version: 1.25.5-00
+ k8s_version: 1.25.6-00
  vmuser: andrew
 
 {{ lab_prefix }}-controller:
@@ -29,7 +29,7 @@ parameters:
     owner: {{ vmuser }}:{{ vmuser }}
     mode: 755
  cmds:
-  - /home/{{ vmuser }}/k8s-build-scripts/00-build_k8s_cluster.sh MASTER {{ k8s_version }} > /home/{{ vmuser }}/k8s_install.log
+  - /home/{{ vmuser }}/k8s-build-scripts/00-build_k8s_cluster.sh MASTER {{ k8s_version }} > /home/{{ vmuser }}/install.log
 
 {{ lab_prefix }}-worker1:
  image: ubuntu2004
@@ -51,4 +51,4 @@ parameters:
     owner: {{ vmuser }}:{{ vmuser }}
     mode: 755
  cmds:
-  - /home/{{ vmuser }}/k8s-build-scripts/00-build_k8s_cluster.sh WORKER {{ k8s_version }} > /home/{{ vmuser }}/k8s_install.log
+  - /home/{{ vmuser }}/k8s-build-scripts/00-build_k8s_cluster.sh WORKER {{ k8s_version }} > /home/{{ vmuser }}/install.log

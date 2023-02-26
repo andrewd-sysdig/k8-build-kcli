@@ -4,4 +4,7 @@
 export KUBECONFIG=/etc/kubernetes/admin.conf
 
 ### Install Calico Network Plugin
-kubectl apply -f https://docs.projectcalico.org/manifests/calico.yaml
+kubectl apply -f https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/calico.yaml
+
+### Install Flannel Network Plugin
+# kubectl apply -f https://github.com/flannel-io/flannel/releases/latest/download/kube-flannel.yml
