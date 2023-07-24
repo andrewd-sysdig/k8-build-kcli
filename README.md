@@ -79,7 +79,7 @@ sudo chown -R nobody:nogroup /mnt/nfs_share/
 sudo chmod 777 /mnt/nfs_share/
 sudo nano /etc/exports
 ```
-Add: `/mnt/nfs_share 192.168.0.1/23(rw,sync,no_subtree_check)`
+Add: `/mnt/nfs_share 192.168.0.1/23(rw,sync,no_subtree_check,no_root_squash)`
 
 ```
 sudo exportfs -a
