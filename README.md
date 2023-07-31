@@ -3,7 +3,7 @@
 ## Setup prerequistes 
 
 ### Install Ubuntu 22.04
-Install Ubuntu 22.04 Server (ubuntu-22.04.1-live-server-amd64.iso)
+Install Ubuntu 22.04 Server (ubuntu-22.04.2-live-server-amd64.iso)
 
 Hint, checkout Ventoy to boot from iso: https://www.ventoy.net
 
@@ -25,7 +25,7 @@ sudo reboot
 `sudo sh -c 'echo "andrew ALL=(ALL:ALL) NOPASSWD:ALL" >> /etc/sudoers'`
 	
 ### Generate a new Private/Public Key or copy your existing one
-This is used by kcli later to copy the public key into the VM's automatically
+If you want to run kcli from your laptop then copy yours to the server. This is used by kcli later to copy the public key into the VM's automatically
 ```
 scp ~/.ssh/id_rsa.pub 192.168.0.4:/home/andrew/.ssh/
 scp ~/.ssh/id_rsa 192.168.0.4:/home/andrew/.ssh/
@@ -56,7 +56,7 @@ network:
       dhcp4: false
       dhcp6: false
       addresses: 
-      - 192.168.0.4/23
+      - 192.168.0.4/24
       routes:
       - to: default
         via: 192.168.0.1
@@ -68,23 +68,7 @@ network:
 EOF
 ```
 
-Now apply it `netplan apply`
-
-### [Optional] Install NFS Server to use as nfs-csi driver for Kubernetes PV
-
-```
-sudo apt install nfs-kernel-server
-sudo mkdir -p /mnt/nfs_share
-sudo chown -R nobody:nogroup /mnt/nfs_share/
-sudo chmod 777 /mnt/nfs_share/
-sudo nano /etc/exports
-```
-Add: `/mnt/nfs_share 192.168.0.1/23(rw,sync,no_subtree_check,no_root_squash)`
-
-```
-sudo exportfs -a
-sudo systemctl restart nfs-kernel-server
-```
+Now apply it `sudo netplan apply`
 
 ## Install Docker
 > **_NOTE:_**  If you don't want to run containers on the host machine then you can skip this Install docker section.
@@ -131,10 +115,13 @@ After installing docker (more specifically starting the docker service) it will 
 ### Ok, now Install Docker
 https://docs.docker.com/engine/install/ubuntu/
 ```
-sudo apt-get install ca-certificates curl  gnupg lsb-release
+sudo apt-get install ca-certificates curl gnupg lsb-release
 sudo mkdir -p /etc/apt/keyrings
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+echo \
+  "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+  "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 sudo apt-get update
 sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin
 sudo groupadd docker
@@ -143,10 +130,18 @@ newgrp docker
 docker run hello-world
 ```
 
+### Install docker-compose
+```
+wget https://github.com/docker/compose/releases/download/v2.20.2/docker-compose-linux-x86_64
+chmod +x chmod +x docker-compose-linux-x86_64
+sudo mv docker-compose-linux-x86_64 /usr/local/bin
+```
+
 ## Install KVM & Libvirt
 Install kvm packages, commands taken from: https://linuxhint.com/install-kvm-ubuntu-22-04/
 ```
 sudo apt install qemu-kvm libvirt-daemon-system virtinst libvirt-clients bridge-utils genisoimage
+sudo nano /etc/libvirt/qemu.conf # set user:andrew
 sudo systemctl enable libvirtd
 sudo systemctl start libvirtd
 sudo usermod -aG kvm $USER
@@ -165,7 +160,6 @@ https://github.com/karmab/kcli
 kcli is a python wrapper around kvm to allow you to quickly download images, create vms, including declaratively 
 ```
 curl -fsSL https://dl.cloudsmith.io/public/karmab/kcli/gpg.F9EA2C192F1D6BB6.key | sudo gpg --dearmor -o /usr/share/keyrings/karmab-kcli-archive-keyring.gpg
-echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 echo "deb [signed-by=/usr/share/keyrings/karmab-kcli-archive-keyring.gpg] https://dl.cloudsmith.io/public/karmab/kcli/deb/ubuntu jammy main" >> /etc/apt/sources.list.d/karmab-kcli.list
 echo "deb-src [signed-by=/usr/share/keyrings/karmab-kcli-archive-keyring.gpg] https://dl.cloudsmith.io/public/karmab/kcli/deb/ubuntu jammy main" >> /etc/apt/sources.list.d/karmab-kcli.list
 
@@ -196,10 +190,11 @@ virsh iface-list
 
 ### Configure kcli
 ```
-virsh net-start default
 kcli create host kvm -H 127.0.0.1 local # Did I need this?
 kcli create pool -p /mnt/2TB/kvm-images/ default # Same path we created above
-kcli download image ubuntu2004 # 
+kcli download image ubuntu2004 -u https://cloud-images.ubuntu.com/releases/focal/release/ubuntu-20.04-server-cloudimg-amd64.img
+kcli download image ubuntu2204 -u https://cloud-images.ubuntu.com/releases/22.04/release/ubuntu-22.04-server-cloudimg-amd64.img
+kcli download image ubuntu2210
 kcli create vm -i ubuntu2004 vm1 -P nets=[br0] # Test creating a vm
 kcli delete vm1 # delete the vm
 ```
@@ -237,7 +232,7 @@ kcli info keyword <parameter> # View more details about a parameter
 ## Create K8s Cluster
 This plan creates a 2 node cluster, to add more just edit the cluster.yaml
 
-`kcli create plan -f lab2-cluster.yaml`
+`kcli create plan -f lab2-cluster.yaml lab2`
 
 Wait a few mins until its ready and there will be a file k8_join.sh in the vmuser home directory which you need to run on the worker(s)
 
@@ -247,11 +242,11 @@ export WORKER_IP=192.168.1.111
 scp $CONTROLLER_IP:~/k8_join.sh $WORKER_IP:/tmp/k8_join.sh
 ssh $WORKER_IP sudo /tmp/k8_join.sh
 
-export WORKER_IP=192.168.1.32
+export WORKER_IP=192.168.1.112
 scp $CONTROLLER_IP:~/k8_join.sh $WORKER_IP:/tmp/k8_join.sh
 ssh $WORKER_IP sudo /tmp/k8_join.sh
 
-export WORKER_IP=192.168.1.33
+export WORKER_IP=192.168.1.113
 scp $CONTROLLER_IP:~/k8_join.sh $WORKER_IP:/tmp/k8_join.sh
 ssh $WORKER_IP sudo /tmp/k8_join.sh
 ```
@@ -261,21 +256,52 @@ ssh $WORKER_IP sudo /tmp/k8_join.sh
 `scp $CONTROLLER_IP:~/.kube/config lab2-kubeconfig.yaml`
 
 ## Install MetalLB
-This providers LoadBalancer Service for 
+This providers LoadBalancer Service for the cluster
 
 ```
 helm install metallb metallb/metallb --namespace metallb-system --create-namespace
-k -n metallb-system get pod -w
+k -n metallb-system get pod -w # Wait until pods are ready
 k apply -f metal-lb-cr.yaml
 ```
 
-## Install NFS CSI Driver
+## Install CSI Driver
+
+### Longhorn Option (recommended)
+https://longhorn.io/docs/1.5.1/deploy/install/install-with-helm/
+This uses your node storage so should be faster/less issues than NFS option.
+
+```
+helm repo add longhorn https://charts.longhorn.io
+helm repo update
+helm install longhorn longhorn/longhorn --namespace longhorn-system --create-namespace --set persistence.defaultClassReplicaCount=1 --set service.ui.type=NodePort --set defaultSettings.deletingConfirmationFlag=true
+```
+
+### NFS Option
+Install NFS Server on the host to use as nfs-csi driver for Kubernetes PV
+
+```
+sudo apt install nfs-kernel-server
+sudo mkdir -p /mnt/nfs_share
+sudo chown -R nobody:nogroup /mnt/nfs_share/
+sudo chmod 777 /mnt/nfs_share/
+sudo nano /etc/exports
+```
+Add: `/mnt/nfs_share 192.168.0.1/24(rw,sync,no_subtree_check,no_root_squash)`
+
+```
+sudo exportfs -a
+sudo systemctl restart nfs-kernel-server
+```
 
 ```
 helm install csi-driver-nfs csi-driver-nfs/csi-driver-nfs --namespace csi-driver-nfs --version v4.1.0 --create-namespace
 k -n csi-driver-nfs get pod -w
 k apply -f nfs-csi-sc.yaml
 ```
+
+### Add hosts entry
+Not running a local DNS so I add a entry to /etc/hosts on each server for my onprem setup
+`echo 192.168.1.105 sysdig.f.lan |sudo tee -a /etc/hosts``
 
 ## TODO 
 

@@ -7,8 +7,8 @@ parameters:
  netmask: 255.255.255.0
  gateway: 192.168.1.1
  dns: 192.168.1.1
- image: ubuntu2004
- k8s_version: 1.24.9-00 # Get valid release from here https://kubernetes.io/releases/
+ image: /home/andrew/kcli_vms/ubuntu2004
+ k8s_version: 1.24.16-00 # Get valid release from here https://kubernetes.io/releases/
  vmuser: andrew
 
 {{ lab_prefix }}-controller:
@@ -34,12 +34,12 @@ parameters:
   - /home/{{ vmuser }}/k8s-build-scripts/00-build_k8s_cluster.sh MASTER {{ k8s_version }} > /home/{{ vmuser }}/install.log
 
 {{ lab_prefix }}-worker1:
- image: ubuntu2004
+ image: {{ image }}
  vmuser: {{ vmuser }}
- numcpus: 8
+ numcpus: 12
  memory: 16000
  disks:
-  - size: 100
+  - size: 250
  nets:
   - name: br0
     nic: ens3
@@ -56,12 +56,12 @@ parameters:
   - /home/{{ vmuser }}/k8s-build-scripts/00-build_k8s_cluster.sh WORKER {{ k8s_version }} > /home/{{ vmuser }}/install.log
 
 {{ lab_prefix }}-worker2:
- image: ubuntu2004
+ image: {{ image }}
  vmuser: {{ vmuser }}
- numcpus: 8
+ numcpus: 12
  memory: 16000
  disks:
-  - size: 100
+  - size: 250
  nets:
   - name: br0
     nic: ens3
@@ -78,12 +78,12 @@ parameters:
   - /home/{{ vmuser }}/k8s-build-scripts/00-build_k8s_cluster.sh WORKER {{ k8s_version }} > /home/{{ vmuser }}/install.log
 
 {{ lab_prefix }}-worker3:
- image: ubuntu2004
+ image: {{ image }}
  vmuser: {{ vmuser }}
- numcpus: 8
+ numcpus: 12
  memory: 16000
  disks:
-  - size: 100
+  - size: 250
  nets:
   - name: br0
     nic: ens3

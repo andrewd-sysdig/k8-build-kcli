@@ -35,6 +35,12 @@ EOF
 
 sed -i 's/^disabled_plugins \=/\#disabled_plugins \=/g' /etc/containerd/config.toml
 
+# Setup so crictl works
+cat <<EOF | sudo tee -a /etc/crictl.yaml
+runtime-endpoint: unix:///run/containerd/containerd.sock
+image-endpoint: unix:///run/containerd/containerd.sock
+EOF
+
 ## Enable and start containerd
 systemctl restart containerd
 systemctl enable containerd
