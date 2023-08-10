@@ -34,9 +34,7 @@ scp ~/.ssh/id_rsa 192.168.0.4:/home/andrew/.ssh/
 ### Enable dmesg for non root user
 Annoys me having to sudo this...
 
-`sudo nano /etc/sysctl.d/10-kernel-hardening.conf`
-
-uncomment kernel.dmesg_restrict = 0
+`sudo sed -i 's/^# kernel\.dmesg_restrict/kernel\.dmesg_restrict/' /etc/sysctl.d/10-kernel-hardening.con`
 
 `sudo service procps restart`
 
