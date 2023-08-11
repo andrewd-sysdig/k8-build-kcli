@@ -1,0 +1,19 @@
+lab3-worker3:
+ image: debian12
+ vmuser: andrew
+ numcpus: 8
+ memory: 8096
+ disks:
+  - size: 100
+ nets:
+  - name: br0
+    nic: ens3
+    ip: 192.168.1.123
+    mask: 255.255.255.0
+    gateway: 192.168.1.1
+    dns: 192.168.1.1
+ files:
+  - path: /home/andrew/k8s-build-scripts/
+    origin: ./k8s-build-scripts/
+    owner: andrew:andrew
+    mode: 755

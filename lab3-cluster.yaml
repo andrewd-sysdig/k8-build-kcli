@@ -1,15 +1,14 @@
 parameters:
- plan: lab1
- lab_prefix: lab1
- controller_ip: 192.168.1.100
- worker1_ip: 192.168.1.101
- worker2_ip: 192.168.1.102
- worker3_ip: 192.168.1.103
+ plan: lab3
+ lab_prefix: lab3
+ controller_ip: 192.168.1.120
+ worker1_ip: 192.168.1.121
+ worker2_ip: 192.168.1.122
  netmask: 255.255.255.0
  gateway: 192.168.1.1
  dns: 192.168.1.1
  image: ubuntu2004
- k8s_version: 1.24.16-00 # Get valid release from here https://kubernetes.io/releases/
+ k8s_version: 1.25.12-00
  vmuser: andrew
 
 {{ lab_prefix }}-controller:
@@ -37,8 +36,8 @@ parameters:
 {{ lab_prefix }}-worker1:
  image: {{ image }}
  vmuser: {{ vmuser }}
- numcpus: 12
- memory: 16000
+ numcpus: 8
+ memory: 16384
  disks:
   - size: 250
  nets:
@@ -57,10 +56,10 @@ parameters:
   - /home/{{ vmuser }}/k8s-build-scripts/00-build_k8s_cluster.sh WORKER {{ k8s_version }} > /home/{{ vmuser }}/install.log
 
 {{ lab_prefix }}-worker2:
- image: {{ image }}
+ image: ubuntu2204
  vmuser: {{ vmuser }}
- numcpus: 12
- memory: 16000
+ numcpus: 8
+ memory: 16384
  disks:
   - size: 250
  nets:
@@ -77,27 +76,3 @@ parameters:
     mode: 755
  cmds:
   - /home/{{ vmuser }}/k8s-build-scripts/00-build_k8s_cluster.sh WORKER {{ k8s_version }} > /home/{{ vmuser }}/install.log
-
-{{ lab_prefix }}-worker3:
- image: {{ image }}
- vmuser: {{ vmuser }}
- numcpus: 12
- memory: 16000
- disks:
-  - size: 250
- nets:
-  - name: br0
-    nic: ens3
-    ip: {{ worker3_ip }}
-    mask: {{ netmask }}
-    gateway: {{ gateway }}
-    dns: {{ dns }}
- files:
-  - path: /home/{{ vmuser }}/k8s-build-scripts/
-    origin: ./k8s-build-scripts/
-    owner: {{ vmuser }}:{{ vmuser }}
-    mode: 755
- cmds:
-  - /home/{{ vmuser }}/k8s-build-scripts/00-build_k8s_cluster.sh WORKER {{ k8s_version }} > /home/{{ vmuser }}/install.log
-
-
