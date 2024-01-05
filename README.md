@@ -130,9 +130,10 @@ docker run hello-world
 
 ### Install docker-compose
 ```
-wget https://github.com/docker/compose/releases/download/v2.20.2/docker-compose-linux-x86_64
-chmod +x chmod +x docker-compose-linux-x86_64
-sudo mv docker-compose-linux-x86_64 /usr/local/bin
+COMPOSE_VERSION=$(curl -s https://api.github.com/repos/docker/compose/releases/latest | jq -r '.tag_name')
+wget  -O docker-compose https://github.com/docker/compose/releases/download/${COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m`
+chmod +x docker-compose
+sudo install -o root -g root -m 0755 docker-compose /usr/local/bin/docker-compose
 ```
 
 ## Install KVM & Libvirt
