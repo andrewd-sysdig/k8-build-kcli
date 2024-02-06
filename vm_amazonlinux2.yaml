@@ -1,4 +1,4 @@
-lab3-worker4:
+amazonlinux2:
  image: amazonlinux2
  vmuser: andrew
  rootpassword: test
@@ -8,13 +8,13 @@ lab3-worker4:
   - size: 100
  nets:
   - name: br0
-    nic: ens3
+    nic: eth0
     ip: 192.168.1.124
     mask: 255.255.255.0
     gateway: 192.168.1.1
     dns: 192.168.1.1
- files:
-  - path: /home/andrew/k8s-build-scripts/
-    origin: ./k8s-build-scripts/
-    owner: andrew:andrew
-    mode: 755
+# files:
+#  - path: /home/andrew/k8s-build-scripts/
+#    origin: ./k8s-build-scripts/
+#    owner: andrew:andrew
+#    mode: 755
