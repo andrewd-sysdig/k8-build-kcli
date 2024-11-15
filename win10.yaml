@@ -1,0 +1,11 @@
+win10:
+ iso: /home/andrew/kcli_vms/Win10_22H2_English_x64v1.iso
+ extra_iso: /home/andrew/kcli_vms/virtio-win-0.1.262.iso
+# extra_iso: /home/andrew/kcli_vms/unattend.iso
+ numcpus: 2
+ memory: 8048
+ disks:
+  - size: 100
+#    interface: sata # Could use sata to avoid needing virtio drivers on install
+ nets:
+  - name: br0

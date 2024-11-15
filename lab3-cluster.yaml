@@ -7,8 +7,8 @@ parameters:
  netmask: 255.255.255.0
  gateway: 192.168.1.1
  dns: 192.168.1.1
- image: ubuntu2004
- k8s_version: 1.25.12-00
+ image: /home/andrew/kcli_vms/ubuntu2004-20241114
+ k8s_version: 1.29.10-1.1 # apt-cache madison kubectl
  vmuser: andrew
 
 {{ lab_prefix }}-controller:
@@ -44,28 +44,6 @@ parameters:
   - name: br0
     nic: ens3
     ip: {{ worker1_ip }}
-    mask: {{ netmask }}
-    gateway: {{ gateway }}
-    dns: {{ dns }}
- files:
-  - path: /home/{{ vmuser }}/k8s-build-scripts/
-    origin: ./k8s-build-scripts/
-    owner: {{ vmuser }}:{{ vmuser }}
-    mode: 755
- cmds:
-  - /home/{{ vmuser }}/k8s-build-scripts/00-build_k8s_cluster.sh WORKER {{ k8s_version }} > /home/{{ vmuser }}/install.log
-
-{{ lab_prefix }}-worker2:
- image: ubuntu2204
- vmuser: {{ vmuser }}
- numcpus: 8
- memory: 16384
- disks:
-  - size: 250
- nets:
-  - name: br0
-    nic: ens3
-    ip: {{ worker2_ip }}
     mask: {{ netmask }}
     gateway: {{ gateway }}
     dns: {{ dns }}

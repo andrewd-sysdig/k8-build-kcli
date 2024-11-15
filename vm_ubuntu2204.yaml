@@ -3,8 +3,8 @@ parameters:
 
 ubuntu2204-vm:
  image: {{ image }}
- numcpus: 2
- memory: 4096
+ numcpus: 4
+ memory: 16096
  disks:
   - size: 100
  nets:
